@@ -1,7 +1,289 @@
-'use client';
-import {useState,useRef,useEffect} from 'react';
-import Link from 'next/link';
-import {ArrowLeft,ArrowRight,MapPin,BedDouble,Bath,Scan,Check,ShieldCheck,X,ChevronLeft,ChevronRight,Images} from 'lucide-react';
-import {Header,Footer,SaveButton,PropertyCard} from './site';
-import {photos,properties} from '@/lib/properties';
-export default function PropertyDetail({property:p}){const[gallery,setGallery]=useState(-1);const[sent,setSent]=useState(false);const[error,setError]=useState('');const dialog=useRef(null);const images=[p.image,photos.room,photos.house];useEffect(()=>{if(gallery>=0&&!dialog.current.open)dialog.current.showModal();if(gallery<0&&dialog.current.open)dialog.current.close()},[gallery]);return <><Header/><main className="detail-main"><div className="detail-breadcrumb"><Link href="/properties"><ArrowLeft size={15}/> All properties</Link><span>Naya Nazimabad / {p.block} / {p.title}</span></div><div className="detail-heading"><div><span className="eyebrow">{p.purpose==='Rent'?'FOR RENT':'FOR SALE'} · DEMO PROPERTY</span><h1>{p.title}</h1><p><MapPin size={16}/>{p.block}, Naya Nazimabad, Karachi</p></div><SaveButton id={p.id}/></div><div className="detail-gallery">{images.map((src,i)=><button key={i} onClick={()=>setGallery(i)} aria-label={'Open image '+(i+1)}><img src={src} alt={`${p.title}, illustrative ${i===0?'exterior':'interior'} view`} /></button>)}<button className="gallery-trigger" onClick={()=>setGallery(0)}><Images size={17}/> View all photos</button></div><div className="detail-columns"><div><div className="detail-specs"><span><BedDouble/>{p.beds||'—'} bedrooms</span><span><Bath/>{p.baths||'—'} bathrooms</span><span><Scan/>{p.area} sq. yd.</span></div><section className="detail-section"><span className="eyebrow">WELCOME TO YOUR NEXT CHAPTER</span><h2>A little more space to <em>live.</em></h2><p>{p.description}</p><p>This example listing shows the information you will be able to explore before a visit. Photos are architectural inspiration and do not depict a verified property in Naya Nazimabad.</p></section><section className="detail-section"><h3>The essentials</h3><div className="essentials">{[['Property type',p.type],['Purpose',p.purpose==='Buy'?'For sale':'For rent'],['Plot area',p.area+' sq. yd.'],['Location',p.block],['Listing reference','NZ-'+p.id.slice(0,3).toUpperCase()],['Documentation','To be confirmed']].map(([a,b])=><div key={a}><span>{a}</span><strong>{b}</strong></div>)}</div></section><section className="detail-section"><h3>Questions for your visit</h3><div className="checklist">{['What is the current asking price?','When can I see the property in person?','Which property documents are available?','What utilities and community facilities are included?'].map(x=><p key={x}><Check size={17}/>{x}</p>)}</div></section><section className="detail-section"><h3>Get to know the location</h3><p>{p.block}, Naya Nazimabad, Karachi. Exact property pin and distances should be confirmed with the owner.</p><a className="text-link" href="https://www.google.com/maps/search/?api=1&query=Naya+Nazimabad+Karachi" target="_blank" rel="noreferrer">Explore Naya Nazimabad on Google Maps <ArrowRight size={16}/></a></section></div><aside className="visit-card"><span className="eyebrow">INDICATIVE ASKING PRICE</span><h2><small>PKR</small> {p.priceLabel}</h2><p>Find out if it feels like home.</p><hr/><h3>Plan a visit</h3>{sent?<div className="success" role="status"><ShieldCheck size={32}/><h3>Your demo request is saved.</h3><p>Saved on this device only. No agent has been contacted.</p><button className="text-link" onClick={()=>setSent(false)}>Make another request</button></div>:<form onSubmit={e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.currentTarget));try{localStorage.setItem('nazim-visit',JSON.stringify({...data,property:p.id}));setError('');setSent(true)}catch{setError('Device storage is unavailable. Please enable storage and try again.')}}}><label>Your name<input required name="name" placeholder="Full name" autoComplete="name"/></label><label>Phone number<input required name="phone" type="tel" pattern="[+0-9 ()\-]{10,18}" placeholder="03XX XXXXXXX" autoComplete="tel"/></label><label>Preferred date<input required name="date" type="date" min={new Date().toLocaleDateString('en-CA')}/></label><button className="button">Request a visit <ArrowRight size={17}/></button>{error&&<p role="alert">{error}</p>}<span className="small-note">Demo only. Your request stays on your device and is not sent to an agent.</span></form>}<div className="visit-bottom"><ShieldCheck size={20}/><span>Explore at your pace.<br/>No pressure. No commitment.</span></div></aside></div><section className="related"><h2>More places to <em>belong.</em></h2><div className="property-grid">{properties.filter(x=>x.id!==p.id).slice(0,3).map(x=><PropertyCard key={x.id} property={x}/>)}</div></section></main><Footer/><dialog ref={dialog} className="lightbox" aria-label="Property photo gallery" onCancel={()=>setGallery(-1)}><button className="lightbox-close" aria-label="Close gallery" onClick={()=>setGallery(-1)}><X/></button><button aria-label="Previous photo" onClick={()=>setGallery((gallery+2)%3)}><ChevronLeft/></button><div>{gallery>=0&&<img src={images[gallery]} alt={'Illustrative property photograph '+(gallery+1)}/>}<p>{gallery+1} / 3 · Illustrative photography</p></div><button aria-label="Next photo" onClick={()=>setGallery((gallery+1)%3)}><ChevronRight/></button></dialog></>}
+"use client";
+import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
+import {
+  ArrowLeft,
+  ArrowRight,
+  MapPin,
+  BedDouble,
+  Bath,
+  Scan,
+  Check,
+  ShieldCheck,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Images,
+} from "lucide-react";
+import { Header, Footer, SaveButton, PropertyCard } from "./site";
+import { photos, properties } from "@/lib/properties";
+export default function PropertyDetail({ property: p }) {
+  const [gallery, setGallery] = useState(-1);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
+  const dialog = useRef(null);
+  const images = [p.image, photos.room, photos.house];
+  useEffect(() => {
+    if (gallery >= 0 && !dialog.current.open) dialog.current.showModal();
+    if (gallery < 0 && dialog.current.open) dialog.current.close();
+  }, [gallery]);
+  return (
+    <>
+      <Header />
+      <main className="detail-main">
+        <div className="detail-breadcrumb">
+          <Link href="/properties">
+            <ArrowLeft size={15} /> All properties
+          </Link>
+          <span>
+            Naya Nazimabad / {p.block} / {p.title}
+          </span>
+        </div>
+        <div className="detail-heading">
+          <div>
+            <span className="eyebrow">
+              {p.purpose === "Rent" ? "FOR RENT" : "FOR SALE"} · DEMO PROPERTY
+            </span>
+            <h1>{p.title}</h1>
+            <p>
+              <MapPin size={16} />
+              {p.block}, Naya Nazimabad, Karachi
+            </p>
+          </div>
+          <SaveButton id={p.id} />
+        </div>
+        <div className="detail-gallery">
+          {images.map((src, i) => (
+            <button
+              key={i}
+              onClick={() => setGallery(i)}
+              aria-label={"Open image " + (i + 1)}
+            >
+              <img
+                src={src}
+                alt={`${p.title}, illustrative ${i === 0 ? "exterior" : "interior"} view`}
+              />
+            </button>
+          ))}
+          <button className="gallery-trigger" onClick={() => setGallery(0)}>
+            <Images size={17} /> View all photos
+          </button>
+        </div>
+        <div className="detail-columns">
+          <div>
+            <div className="detail-specs">
+              <span>
+                <BedDouble />
+                {p.beds || "—"} bedrooms
+              </span>
+              <span>
+                <Bath />
+                {p.baths || "—"} bathrooms
+              </span>
+              <span>
+                <Scan />
+                {p.area} sq. yd.
+              </span>
+            </div>
+            <section className="detail-section">
+              <span className="eyebrow">WELCOME TO YOUR NEXT CHAPTER</span>
+              <h2>
+                A little more space to <em>live.</em>
+              </h2>
+              <p>{p.description}</p>
+              <p>
+                This example listing shows the information you will be able to
+                explore before a visit. Photos are architectural inspiration and
+                do not depict a verified property in Naya Nazimabad.
+              </p>
+            </section>
+            <section className="detail-section">
+              <h3>The essentials</h3>
+              <div className="essentials">
+                {[
+                  ["Property type", p.type],
+                  ["Purpose", p.purpose === "Buy" ? "For sale" : "For rent"],
+                  ["Plot area", p.area + " sq. yd."],
+                  ["Location", p.block],
+                  ["Listing reference", "NZ-" + p.id.slice(0, 3).toUpperCase()],
+                  ["Documentation", "To be confirmed"],
+                ].map(([a, b]) => (
+                  <div key={a}>
+                    <span>{a}</span>
+                    <strong>{b}</strong>
+                  </div>
+                ))}
+              </div>
+            </section>
+            <section className="detail-section">
+              <h3>Questions for your visit</h3>
+              <div className="checklist">
+                {[
+                  "What is the current asking price?",
+                  "When can I see the property in person?",
+                  "Which property documents are available?",
+                  "What utilities and community facilities are included?",
+                ].map((x) => (
+                  <p key={x}>
+                    <Check size={17} />
+                    {x}
+                  </p>
+                ))}
+              </div>
+            </section>
+            <section className="detail-section">
+              <h3>Get to know the location</h3>
+              <p>
+                {p.block}, Naya Nazimabad, Karachi. Exact property pin and
+                distances should be confirmed with the owner.
+              </p>
+              <a
+                className="text-link"
+                href="https://www.google.com/maps/search/?api=1&query=Naya+Nazimabad+Karachi"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Explore Naya Nazimabad on Google Maps <ArrowRight size={16} />
+              </a>
+            </section>
+          </div>
+          <aside className="visit-card">
+            <span className="eyebrow">INDICATIVE ASKING PRICE</span>
+            <h2>
+              <small>PKR</small> {p.priceLabel}
+            </h2>
+            <p>Find out if it feels like home.</p>
+            <hr />
+            <h3>Plan a visit</h3>
+            {sent ? (
+              <div className="success" role="status">
+                <ShieldCheck size={32} />
+                <h3>Your demo request is saved.</h3>
+                <p>Saved on this device only. No agent has been contacted.</p>
+                <button className="text-link" onClick={() => setSent(false)}>
+                  Make another request
+                </button>
+              </div>
+            ) : (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const data = Object.fromEntries(
+                    new FormData(e.currentTarget),
+                  );
+                  try {
+                    localStorage.setItem(
+                      "nazim-visit",
+                      JSON.stringify({ ...data, property: p.id }),
+                    );
+                    setError("");
+                    setSent(true);
+                  } catch {
+                    setError(
+                      "Device storage is unavailable. Please enable storage and try again.",
+                    );
+                  }
+                }}
+              >
+                <label>
+                  Your name
+                  <input
+                    required
+                    name="name"
+                    placeholder="Full name"
+                    autoComplete="name"
+                  />
+                </label>
+                <label>
+                  Phone number
+                  <input
+                    required
+                    name="phone"
+                    type="tel"
+                    pattern="[+0-9 ()\-]{10,18}"
+                    placeholder="03XX XXXXXXX"
+                    autoComplete="tel"
+                  />
+                </label>
+                <label>
+                  Preferred date
+                  <input
+                    required
+                    name="date"
+                    type="date"
+                    min={new Date().toLocaleDateString("en-CA")}
+                  />
+                </label>
+                <button className="button">
+                  Request a visit <ArrowRight size={17} />
+                </button>
+                {error && <p role="alert">{error}</p>}
+                <span className="small-note">
+                  Demo only. Your request stays on your device and is not sent
+                  to an agent.
+                </span>
+              </form>
+            )}
+            <div className="visit-bottom">
+              <ShieldCheck size={20} />
+              <span>
+                Explore at your pace.
+                <br />
+                No pressure. No commitment.
+              </span>
+            </div>
+          </aside>
+        </div>
+        <section className="related">
+          <h2>
+            More places to <em>belong.</em>
+          </h2>
+          <div className="property-grid">
+            {properties
+              .filter((x) => x.id !== p.id)
+              .slice(0, 3)
+              .map((x) => (
+                <PropertyCard key={x.id} property={x} />
+              ))}
+          </div>
+        </section>
+      </main>
+      <Footer />
+      <dialog
+        ref={dialog}
+        className="lightbox"
+        aria-label="Property photo gallery"
+        onCancel={() => setGallery(-1)}
+      >
+        <button
+          className="lightbox-close"
+          aria-label="Close gallery"
+          onClick={() => setGallery(-1)}
+        >
+          <X />
+        </button>
+        <button
+          aria-label="Previous photo"
+          onClick={() => setGallery((gallery + 2) % 3)}
+        >
+          <ChevronLeft />
+        </button>
+        <div>
+          {gallery >= 0 && (
+            <img
+              src={images[gallery]}
+              alt={"Illustrative property photograph " + (gallery + 1)}
+            />
+          )}
+          <p>{gallery + 1} / 3 · Illustrative photography</p>
+        </div>
+        <button
+          aria-label="Next photo"
+          onClick={() => setGallery((gallery + 1) % 3)}
+        >
+          <ChevronRight />
+        </button>
+      </dialog>
+    </>
+  );
+}

@@ -1,11 +1,229 @@
-'use client';
-import Link from 'next/link';
-import {useState,useEffect} from 'react';
-import {ArrowUpRight, ArrowRight, Menu, X, Heart, MapPin, BedDouble, Bath, Scan, House} from 'lucide-react';
-import {motion,useReducedMotion} from 'motion/react';
-export function Reveal({children,className=''}) {const reduced=useReducedMotion();return <motion.div className={className} initial={reduced?false:{opacity:0,y:24}} whileInView={{opacity:1,y:0}} viewport={{once:true,amount:.1}} transition={{duration:.65}}>{children}</motion.div>}
-export function Header(){const[open,setOpen]=useState(false);return <header className="header"><Link href="/" className="brand" aria-label="Nazim home"><span className="brand-icon"><House size={25}/></span>nazim<span className="brand-dot">.</span></Link><nav className={open?'nav open':'nav'} aria-label="Main navigation"><Link onClick={()=>setOpen(false)} href="/properties">Find a home</Link><Link onClick={()=>setOpen(false)} href="/#neighborhood">The neighborhood</Link><Link onClick={()=>setOpen(false)} href="/#how-it-works">How it works</Link><Link onClick={()=>setOpen(false)} href="/properties?saved=true" className="nav-saved"><Heart size={16}/> Saved homes</Link></nav><Link className="button small header-cta" href="/properties">Explore properties <ArrowUpRight size={16}/></Link><button className="menu-button" aria-label="Toggle navigation" aria-expanded={open} onClick={()=>setOpen(!open)}>{open?<X/>:<Menu/>}</button></header>}
-export function Footer(){return <footer><div className="footer-top"><div><Link href="/" className="brand"><span className="brand-icon"><House size={24}/></span>nazim.</Link><p>A little more clarity.<br/>A place to call your own.</p></div><div><span className="eyebrow">FIND YOUR PLACE</span><Link href="/properties">Homes for sale</Link><Link href="/properties?purpose=Rent">Homes for rent</Link><Link href="/properties?type=Plot">Residential plots</Link></div><div><span className="eyebrow">GET TO KNOW US</span><Link href="/#neighborhood">Naya Nazimabad</Link><Link href="/#how-it-works">Our approach</Link><Link href="/properties?saved=true">Your saved homes</Link></div><div className="footer-note"><span className="eyebrow">ROOTED IN KARACHI</span><p>Made for your next chapter.<br/>Naya Nazimabad, Karachi, Pakistan.</p><span className="location-dot"/> A neighborhood. A new beginning.</div></div><div className="footer-bottom"><span>© {new Date().getFullYear()} Nazim. All rights reserved.</span><span>Independent concept · Demo listings & illustrative photography</span><span>Made with care, in Karachi ↗</span></div></footer>}
-export function SaveButton({id}){const[saved,setSaved]=useState(false);useEffect(()=>{function sync(){try{setSaved(JSON.parse(localStorage.getItem('nazim-saved')||'[]').includes(id))}catch{}}sync();window.addEventListener('nazim-saved',sync);return()=>window.removeEventListener('nazim-saved',sync)},[id]);function toggle(){let current=[];try{current=JSON.parse(localStorage.getItem('nazim-saved')||'[]');const next=current.includes(id)?current.filter(x=>x!==id):[...current,id];localStorage.setItem('nazim-saved',JSON.stringify(next));setSaved(next.includes(id));window.dispatchEvent(new Event('nazim-saved'))}catch{setSaved(!saved)}}return <button className={'save-button '+(saved?'is-saved':'')} onClick={toggle} aria-label={saved?'Remove saved home':'Save home'} aria-pressed={saved}><Heart size={18} fill={saved?'currentColor':'none'}/></button>}
-export function PropertyCard({property:p}){return <article className="property-card"><div className="property-image"><Link href={'/properties/'+p.id}><img src={p.image} alt={p.title+' — illustrative home photograph'} loading="lazy"/></Link><span className="property-tag">{p.tag}</span><SaveButton id={p.id}/><span className="image-count">↗ Explore home</span></div><div className="property-body"><div className="property-location"><MapPin size={13}/>{p.block} · Naya Nazimabad</div><Link href={'/properties/'+p.id}><h3>{p.title}</h3></Link><div className="property-specs"><span><BedDouble size={16}/>{p.beds||'—'} Beds</span><span><Bath size={16}/>{p.baths||'—'} Baths</span><span><Scan size={15}/>{p.area} sq. yd.</span></div><div className="property-bottom"><div><span className="price-prefix">PKR </span><strong>{p.priceLabel}</strong></div><Link href={'/properties/'+p.id} className="round-link" aria-label={'View '+p.title}><ArrowUpRight size={20}/></Link></div></div></article>}
-export function SectionTitle({eyebrow,title,description,link}){return <div className="section-heading"><div><span className="eyebrow">{eyebrow}</span><h2>{title}</h2>{description&&<p>{description}</p>}</div>{link&&<Link className="text-link" href="/properties">View all properties <ArrowRight size={17}/></Link>}</div>}
+"use client";
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import {
+  ArrowUpRight,
+  ArrowRight,
+  Menu,
+  X,
+  Heart,
+  MapPin,
+  BedDouble,
+  Bath,
+  Scan,
+  House,
+} from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
+export function Reveal({ children, className = "" }) {
+  const reduced = useReducedMotion();
+  return (
+    <motion.div
+      className={className}
+      initial={reduced ? false : { opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.1 }}
+      transition={{ duration: 0.65 }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+export function Header() {
+  const [open, setOpen] = useState(false);
+  return (
+    <header className="header">
+      <Link href="/" className="brand" aria-label="Nazim home">
+        <span className="brand-icon">
+          <House size={25} />
+        </span>
+        nazim<span className="brand-dot">.</span>
+      </Link>
+      <nav className={open ? "nav open" : "nav"} aria-label="Main navigation">
+        <Link onClick={() => setOpen(false)} href="/properties">
+          Find a home
+        </Link>
+        <Link onClick={() => setOpen(false)} href="/#neighborhood">
+          The neighborhood
+        </Link>
+        <Link onClick={() => setOpen(false)} href="/#how-it-works">
+          How it works
+        </Link>
+        <Link
+          onClick={() => setOpen(false)}
+          href="/properties?saved=true"
+          className="nav-saved"
+        >
+          <Heart size={16} /> Saved homes
+        </Link>
+      </nav>
+      <Link className="button small header-cta" href="/properties">
+        Explore properties <ArrowUpRight size={16} />
+      </Link>
+      <button
+        className="menu-button"
+        aria-label="Toggle navigation"
+        aria-expanded={open}
+        onClick={() => setOpen(!open)}
+      >
+        {open ? <X /> : <Menu />}
+      </button>
+    </header>
+  );
+}
+export function Footer() {
+  return (
+    <footer>
+      <div className="footer-top">
+        <div>
+          <Link href="/" className="brand">
+            <span className="brand-icon">
+              <House size={24} />
+            </span>
+            nazim.
+          </Link>
+          <p>
+            A little more clarity.
+            <br />A place to call your own.
+          </p>
+        </div>
+        <div>
+          <span className="eyebrow">FIND YOUR PLACE</span>
+          <Link href="/properties">Homes for sale</Link>
+          <Link href="/properties?purpose=Rent">Homes for rent</Link>
+          <Link href="/properties?type=Plot">Residential plots</Link>
+        </div>
+        <div>
+          <span className="eyebrow">GET TO KNOW US</span>
+          <Link href="/#neighborhood">Naya Nazimabad</Link>
+          <Link href="/#how-it-works">Our approach</Link>
+          <Link href="/properties?saved=true">Your saved homes</Link>
+        </div>
+        <div className="footer-note">
+          <span className="eyebrow">ROOTED IN KARACHI</span>
+          <p>
+            Made for your next chapter.
+            <br />
+            Naya Nazimabad, Karachi, Pakistan.
+          </p>
+          <span className="location-dot" /> A neighborhood. A new beginning.
+        </div>
+      </div>
+      <div className="footer-bottom">
+        <span>© {new Date().getFullYear()} Nazim. All rights reserved.</span>
+        <span>
+          Independent concept · Demo listings & illustrative photography
+        </span>
+        <span>Made with care, in Karachi ↗</span>
+      </div>
+    </footer>
+  );
+}
+export function SaveButton({ id }) {
+  const [saved, setSaved] = useState(false);
+  useEffect(() => {
+    function sync() {
+      try {
+        setSaved(
+          JSON.parse(localStorage.getItem("nazim-saved") || "[]").includes(id),
+        );
+      } catch {}
+    }
+    sync();
+    window.addEventListener("nazim-saved", sync);
+    return () => window.removeEventListener("nazim-saved", sync);
+  }, [id]);
+  function toggle() {
+    let current = [];
+    try {
+      current = JSON.parse(localStorage.getItem("nazim-saved") || "[]");
+      const next = current.includes(id)
+        ? current.filter((x) => x !== id)
+        : [...current, id];
+      localStorage.setItem("nazim-saved", JSON.stringify(next));
+      setSaved(next.includes(id));
+      window.dispatchEvent(new Event("nazim-saved"));
+    } catch {
+      setSaved(!saved);
+    }
+  }
+  return (
+    <button
+      className={"save-button " + (saved ? "is-saved" : "")}
+      onClick={toggle}
+      aria-label={saved ? "Remove saved home" : "Save home"}
+      aria-pressed={saved}
+    >
+      <Heart size={18} fill={saved ? "currentColor" : "none"} />
+    </button>
+  );
+}
+export function PropertyCard({ property: p }) {
+  return (
+    <article className="property-card">
+      <div className="property-image">
+        <Link href={"/properties/" + p.id}>
+          <img
+            src={p.image}
+            alt={p.title + " — illustrative home photograph"}
+            loading="lazy"
+          />
+        </Link>
+        <span className="property-tag">{p.tag}</span>
+        <SaveButton id={p.id} />
+        <span className="image-count">↗ Explore home</span>
+      </div>
+      <div className="property-body">
+        <div className="property-location">
+          <MapPin size={13} />
+          {p.block} · Naya Nazimabad
+        </div>
+        <Link href={"/properties/" + p.id}>
+          <h3>{p.title}</h3>
+        </Link>
+        <div className="property-specs">
+          <span>
+            <BedDouble size={16} />
+            {p.beds || "—"} Beds
+          </span>
+          <span>
+            <Bath size={16} />
+            {p.baths || "—"} Baths
+          </span>
+          <span>
+            <Scan size={15} />
+            {p.area} sq. yd.
+          </span>
+        </div>
+        <div className="property-bottom">
+          <div>
+            <span className="price-prefix">PKR </span>
+            <strong>{p.priceLabel}</strong>
+          </div>
+          <Link
+            href={"/properties/" + p.id}
+            className="round-link"
+            aria-label={"View " + p.title}
+          >
+            <ArrowUpRight size={20} />
+          </Link>
+        </div>
+      </div>
+    </article>
+  );
+}
+export function SectionTitle({ eyebrow, title, description, link }) {
+  return (
+    <div className="section-heading">
+      <div>
+        <span className="eyebrow">{eyebrow}</span>
+        <h2>{title}</h2>
+        {description && <p>{description}</p>}
+      </div>
+      {link && (
+        <Link className="text-link" href="/properties">
+          View all properties <ArrowRight size={17} />
+        </Link>
+      )}
+    </div>
+  );
+}
